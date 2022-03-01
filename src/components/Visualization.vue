@@ -56,13 +56,17 @@ export default {
     }
 
     const data = reactive({
-      id: computed(() => units.value[props.unitId]["id"]),
+      id: computed(() => {
+        if(units.value.length > props.unitId && units.value[props.unitId].hasOwnProperty("id"))
+          return units.value[props.unitId]["id"]
+        else return null
+      }),
       frameId: 0,
       frameCounter: 0,
     })
 
     const unitHasFrames = computed(() => {
-      return viz.value[data.id] && viz.value[data.id].frames.length > 0
+      return data.id && viz.value[data.id] && viz.value[data.id].frames.length > 0
     })
 
     const framesLength = computed(() => {
