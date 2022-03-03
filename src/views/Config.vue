@@ -81,7 +81,8 @@
               .col-sm-1.col-md-1
                 span.cpus(for="cpus" :onforminput="value = config.cpus") {{ config.cpus }}
               .col-sm-8
-                input#cpus.form-range(v-model.number="config.cpus" type="range" min="1" :max="info.cpus-1" name="cpus")
+                Field#cpus.form-range(v-model.number="config.cpus" type="range" name="cpus",
+                  :min="Math.min(info.cpus-1, Math.max(1,noOfEnabledGPUs))" :max="info.cpus-1")
             .row.mb-3(v-if="Object.keys(config.gpus).length")
               table
                 tr
@@ -128,6 +129,17 @@ export default {
       showPasskey: false
     });
 
+    const noOfEnabledGPUs = computed(() => {
+      let enabled = 0;
+      for(const [key, gpu] of Object.entries(cached.config.gpus))
+        if(gpu.enabled) enabled++;
+
+      if(enabled > cached.config.cpus)
+        cached.config.cpus = Math.min(enabled, info.value.cpus-1)
+
+      return enabled;
+    })
+
     const changedData = computed(() => {
       const tmp = JSON.parse(JSON.stringify(cached.config));
       const result = Object.entries(tmp).filter(([key]) => {
@@ -172,7 +184,7 @@ export default {
       else next();
     })
 
-    return { schema, ...toRefs(cached), info, hasCorrectValues, save, reset, check };
+    return { schema, ...toRefs(cached), info, hasCorrectValues, noOfEnabledGPUs, reset, save, check };
   }
 }
 
