@@ -12,7 +12,7 @@
         .modal-footer
           button.settings.btn.btn-warning(type="button" @click="check('discard')") Discard
           button.settings.btn.btn-primary(type="button" @click="check('save')") Save
-  h2 Configuration
+  br
   form
     .col-md-9.col-lg-8.form-data
       .accordion-item

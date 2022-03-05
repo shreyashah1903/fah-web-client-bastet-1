@@ -1,6 +1,6 @@
 <template lang="pug">
 .view
-  h2 Peers
+  br
   form
     .col-md-9.col-lg-8.form-data
       textarea#peers.form-control(rows="3" cols="25" v-model="cachedPeers"

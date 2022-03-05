@@ -37,3 +37,8 @@ export default {
   }
 }
 </script>
+
+<style lang="stylus" scoped>
+.navbar-nav li a.router-link-active
+  border-bottom 1px solid #FE6215
+</style>
