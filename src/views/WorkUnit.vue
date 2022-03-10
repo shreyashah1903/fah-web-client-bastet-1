@@ -1,6 +1,6 @@
 <template lang="pug">
 .view
-  .row(v-if="showWUInfo")
+  .row(v-show="showWUInfo")
     .col-md-2.col-sm-2
       .card
         ul.list-group.list-group-flush
@@ -19,16 +19,14 @@
                 li.nav-item(:class="{ active : isActive('details') }")
                   a.nav-link(@click.prevent="setActiveTab('details')" href="#details") Details
             .col-sm-1.col-xs-2(v-show="isActive('visualize')")
-              keep-alive
-                a(ref="popper" tabindex="0" role="button" data-bs-toggle="popover" data-bs-placement="bottom"
-                  data-bs-trigger="hover" data-bs-html="true")
-                  i.fas.fa-info-circle.fa-2x
+              a(ref="popper" tabindex="0" role="button" data-bs-toggle="popover" data-bs-placement="bottom"
+                data-bs-trigger="hover" data-bs-html="true")
+                i.fas.fa-info-circle.fa-2x
         Details(v-if="isActive('details')" :unitId="data.unitId")
         Visualization(v-else :unitId="data.unitId" :key="current_url")
-  template(v-if="!showWUInfo")
-    .emptyContainer
-      .card.blue-card.d-flex.align-items-center.justify-content-center
-        p Currently, there are no work units.
+  .emptyContainer(v-show="!showWUInfo")
+    .card.blue-card.d-flex.align-items-center.justify-content-center
+      p Currently, there are no work units.
 </template>
 
 <script>

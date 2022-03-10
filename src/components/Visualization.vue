@@ -56,11 +56,7 @@ export default {
     }
 
     const data = reactive({
-      id: computed(() => {
-        if(units.value.length > props.unitId && units.value[props.unitId].hasOwnProperty("id"))
-          return units.value[props.unitId]["id"]
-        else return null
-      }),
+      id: null,
       frameId: 0,
       frameCounter: 0,
     })
@@ -83,10 +79,21 @@ export default {
     }
 
     const getFrames = () => {
+      if(data.id == null) return
       let msg = { cmd: "viz", unit: data.id }
       msg["frame"] = viz.value && viz.value.hasOwnProperty(data.id) ? viz.value[data.id].frames.length : 0
       send(msg)
     }
+
+    watch([() => units.value],() => {
+      if(units.value.length > props.unitId && units.value[props.unitId].hasOwnProperty("id"))
+        data.id = units.value[props.unitId]["id"]
+      else data.id = null
+    }, {deep:true})
+
+    watch([() => data.id], () => {
+      getFrames()
+    })
 
     watch([() => props.unitId], () => {
       data.frameId = 0
