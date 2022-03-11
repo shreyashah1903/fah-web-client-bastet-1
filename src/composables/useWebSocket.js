@@ -138,6 +138,13 @@ export default function useWebSocket() {
       for (let i = 0; i < updates.length - 1; i++) {
         if (i == updates.length - 2) {
           if (updates[i + 1] == null) {
+            // Delete the viz frames if WU is deleted
+            if(updates.length == 3 && updates[0] == "units") {
+              let id = units.value[updates[1]]["id"]
+              if(viz.value.hasOwnProperty(id))
+                delete ws_data[url].data.viz[id]
+            }
+
             if (Array.isArray(temp)) temp.splice(updates[i], 1)
             else delete temp[updates[i]]
           }
