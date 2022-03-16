@@ -1,4 +1,5 @@
 <template lang="pug">
+FoldAnon(v-if="!showLoading")
 div(v-if="!showLoading")
   Navbar
   router-view
@@ -10,6 +11,7 @@ div(v-else)
 
 <script>
 import Navbar from './components/Navbar.vue'
+import FoldAnon from './components/FoldAnon.vue'
 import useWebSocket from './composables/useWebSocket'
 import 'bootstrap/dist/css/bootstrap.min.css'
 import { onBeforeUnmount } from "vue"
@@ -19,7 +21,7 @@ const ws_url = "ws://127.0.0.1:7396/api/websocket"
 export default {
   name: 'App',
   components: {
-    Navbar
+    FoldAnon, Navbar
   },
   setup() {
     const { showLoading, updatePeerConnections, openWebSocket, close} = useWebSocket()
