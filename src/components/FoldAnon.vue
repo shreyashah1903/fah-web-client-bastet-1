@@ -4,20 +4,9 @@
   .modal-dialog
     .modal-content
       .modal-header
-        h5#foldAnonLabel.modal-title User details
+        h5#foldAnonLabel.modal-title Choose a name or Fold Anonymously
       .modal-body
         p Would you like to fold anonymously or choose a name?
-      .modal-footer
-        button.settings.btn.btn-primary(type="button" @click="setFoldAnon()") Fold Anonymously
-        button.settings.btn.btn-primary(type="button" data-bs-toggle="modal" data-bs-target="#userDetails")
-          | Choose a name
-#userDetails.modal.fade(ref="userDetails" tabindex="-1" data-bs-backdrop="static"
-  aria-labelledby="userDetailsLabel" aria-hidden="true")
-  .modal-dialog
-    .modal-content
-      .modal-header
-        h5#userDetailsLabel.modal-title User details
-      .modal-body
         form
           .row.mb-3
             label.col-sm-3.col-md-3.col-form-label(for="user") Username :
@@ -41,9 +30,9 @@
                     i.fas.fa-eye(aria-hidden="true")
               ErrorMessage.error(name="passkey")
       .modal-footer
-        button.settings.btn.btn-primary.mr-auto(type="button" data-bs-toggle="modal" data-bs-target="#foldAnon") Go Back
-        button.settings.btn.btn-primary(type="button" @click="reset()") Reset
-        button.settings.btn.btn-primary(type="button" :disabled="!hasCorrectValues" @click="save()") Save
+        button.settings.btn.btn-primary(type="button" :disabled="!Object.keys(changedData).length" @click="reset()") Reset
+        button.settings.btn.btn-primary(type="button" :disabled="Object.keys(errors).length" @click="startFolding()")
+          | Start Folding
 </template>
 
 <script>
@@ -93,9 +82,7 @@ export default {
       data.dummyVal = false
 
       let foldAnonModal = Modal.getOrCreateInstance(data.foldAnon)
-      let detailsModal = Modal.getOrCreateInstance(data.userDetails)
       foldAnonModal.hide()
-      detailsModal.hide()
 
       // let msg = { cmd: "config", config: { fold-anon: false }}
       // send(msg)
@@ -114,6 +101,11 @@ export default {
       !Object.keys(errors.value).length && Object.keys(changedData.value).length
     })
 
+    const startFolding = () => {
+      if(hasCorrectValues.value) save()
+      else setFoldAnon()
+    }
+
     onMounted(() => {
       let foldAnonModal = Modal.getOrCreateInstance(data.foldAnon)
       if(!data.dummyVal) {
@@ -122,7 +114,7 @@ export default {
       }
     })
 
-    return { ...toRefs(data), errors , reset, save, setFoldAnon, hasCorrectValues }
+    return { ...toRefs(data), errors , reset, save, setFoldAnon, changedData, hasCorrectValues, startFolding }
   }
 }
 </script>
