@@ -9,7 +9,9 @@
         p Would you like to fold anonymously or choose a name?
         form
           .row.mb-3
-            label.col-sm-3.col-md-3.col-form-label(for="user") Username :
+            label.col-sm-3.col-md-3.col-form-label(for="user") Username
+              span.error *
+              |  :
             .col-sm-9
               Field#user.form-control(v-model="config.user" name="user" type="text")
               ErrorMessage.error(name="user")
@@ -32,11 +34,11 @@
       .modal-footer
         button.settings.btn.btn-primary(type="button" :disabled="!Object.keys(changedData).length" @click="reset()") Reset
         button.settings.btn.btn-primary(type="button" :disabled="Object.keys(errors).length" @click="startFolding()")
-          | Start Folding
+          | {{ showModal ? "Fold Anonymously" : "Start Folding" }}
 </template>
 
 <script>
-import { onMounted, reactive, toRefs, computed } from 'vue'
+import { onMounted, reactive, toRefs, computed, watchEffect } from 'vue'
 import useWebSocket from '../composables/useWebSocket'
 import { Modal } from  'bootstrap'
 import { useForm, Form, Field, ErrorMessage } from 'vee-validate'
@@ -52,14 +54,15 @@ export default {
       userDetails: null,
       showPasskey: false,
       dummyVal: false,
+      showModal: false,
       config: JSON.parse(JSON.stringify(config.value))
     })
 
     const schema = yup.object().shape({
-      user: yup.string().min(1).max(100).label("Username").matches('^(?![_0-9])[A-Za-z0-9_]+$',
+      user: yup.string().required().min(1).max(100).label("Username").matches('^(?![_0-9])[A-Za-z0-9_]+$',
         "Username can contain alphabets, digits and underscores. Username cannot be anonymous, start with a digit or an underscore."),
-      teamId: yup.number().integer().min(1).label("Team ID"),
-      passkey: yup.string().max(32).label("Passkey").matches('^[0-9A-Fa-f]{32}$',
+      teamId: yup.number().integer().min(0).label("Team ID"),
+      passkey: yup.string().max(32).label("Passkey").matches('^$|(^[0-9A-Fa-f]{32}$)',
         "Passkey should be hexadecimal and 32 characters long")
     })
 
@@ -68,13 +71,13 @@ export default {
     const reset = () => { data.config = JSON.parse(JSON.stringify(config.value)) }
     const save = () => {
       let msg = { cmd: "config", config: {
-        user: cached.config.user,
-        team: cached.config.team,
-        passkey: cached.config.passkey,
+        user: data.config.user,
+        team: data.config.team,
+        passkey: data.config.passkey,
         // fold-anon: true
       }}
 
-      // send(msg);
+      send(msg);
     }
 
     const setFoldAnon = () => {
@@ -98,17 +101,23 @@ export default {
     })
 
     const hasCorrectValues = computed(() => {
-      !Object.keys(errors.value).length && Object.keys(changedData.value).length
+      return !Object.keys(errors.value).length && Object.keys(changedData.value).length
     })
 
     const startFolding = () => {
       if(hasCorrectValues.value) save()
-      else setFoldAnon()
+      setFoldAnon()
     }
+
+    watchEffect(() => {
+      if(data.config.user.toLowerCase() == 'anonymous' && data.config.team == 0 && data.config.passkey == '')
+        data.showModal = true
+      else data.showModal = false
+    })
 
     onMounted(() => {
       let foldAnonModal = Modal.getOrCreateInstance(data.foldAnon)
-      if(!data.dummyVal) {
+      if(!data.dummyVal && data.showModal) {
         foldAnonModal.show()
         setTimeout(setFoldAnon(), 15000);
       }
